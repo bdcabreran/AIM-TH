@@ -29,6 +29,6 @@ void light_off(void)
 void light_on_with_timeout(uint32_t tick_ms)
 {
     gpio_set_level(LIGHT_GPIO_PIN, 1);
-    ESP_LOGI(TAG, "Light ON - [%d ms]", tick_ms);
+    ESP_LOGI(TAG, "Light ON - [%ld ms]", tick_ms);
     vTaskDelay(tick_ms / portTICK_PERIOD_MS);
 }

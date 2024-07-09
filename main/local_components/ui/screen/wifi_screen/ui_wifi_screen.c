@@ -88,7 +88,7 @@ static void btn_matrix_cb(lv_event_t* e)
         uint32_t id = lv_btnmatrix_get_selected_btn(obj);
         const char* txt = lv_btnmatrix_get_btn_text(obj, id);
 
-        printf("%s was pressed, id = %d\n", txt, id);
+        printf("%s was pressed, id = %ld\n", txt, id);
 
         if(id == 11) // "ENTER"
         {

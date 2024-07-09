@@ -66,6 +66,6 @@ void app_main(void)
     event_router_init();
     aim_device_init();
 
-    ESP_LOGI(TAG, "Free memory: %d bytes", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "Free memory: %ld bytes", esp_get_free_heap_size());
 }
 
