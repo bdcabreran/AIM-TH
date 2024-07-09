@@ -4,6 +4,12 @@
 // Project name: WiFiSquareLine
 
 #include "ui_wifi_screen.h"
+#include <stdio.h>
+#include "string.h"
+#include "event_router.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 ///////////////////// VARIABLES ////////////////////
 lv_obj_t * ui_WiFiScreen;
@@ -29,7 +35,31 @@ lv_obj_t * ui_ImgPanelConnecting;
 lv_obj_t * ui_Image2;
 lv_obj_t * ui_BtnHome;
 lv_obj_t * ui_ImageBtnHome;
+lv_obj_t * ui_MainMenu;
+lv_obj_t * ui_LabelTitle1;
+lv_obj_t * ui_ButtonNetMenu;
+lv_obj_t * ui_LabelBtnScan1;
+lv_obj_t * ui_ButtonSharedFolderMenu;
+lv_obj_t * ui_LabelBtnScan2;
+lv_obj_t * ui_PanelStatus1;
+lv_obj_t * ui_LabelPanelStatus1;
+lv_obj_t * ui_SharedFolderMenu;
+lv_obj_t * ui_ShareFolderLabelTitle;
+lv_obj_t * ui_PanelStatus2;
+lv_obj_t * ui_LabelPanelStatus2;
+lv_obj_t * ui_ImageFolder;
+lv_obj_t * ui_PanelSharedFolder;
+lv_obj_t * ui_LabelSharedFolder;
+lv_obj_t * ui_LabelNetwork;
+lv_obj_t * ui_ButtonSharedFolderLs;
+lv_obj_t * ui_SharedFolderBtnLabel1;
+lv_obj_t * ui_LabelNetworkInfo;
+lv_obj_t * ui_BtnHome1;
+lv_obj_t * ui_ImageBtnHome1;
 lv_obj_t * ui____initial_actions0;
+lv_obj_t* btnm1;
+
+const lv_img_dsc_t * home_array[2] = {&ui_img_home2_png, &ui_img_home3_png};
 const lv_img_dsc_t * wifi__array[1] = {&ui_img_wifi_1_png};
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -40,9 +70,196 @@ const lv_img_dsc_t * wifi__array[1] = {&ui_img_wifi_1_png};
     #error "LV_COLOR_16_SWAP should be 0 to match SquareLine Studio's settings"
 #endif
 
+#define MAX_PASS_LEN (20)
+static char password[MAX_PASS_LEN];
+static char ssid[MAX_PASS_LEN];
+
+static const char * btnm_map[] = {"1", "2", "3","\n", 
+                                  "4", "5", "6","\n",
+                                  "7", "8", "9","\n", 
+                                  "DEL", "0", "ENTER", ""
+                                 };
+
+static void btn_matrix_cb(lv_event_t* e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t* obj = lv_event_get_target(e);
+    if (code == LV_EVENT_VALUE_CHANGED) {
+        uint32_t id = lv_btnmatrix_get_selected_btn(obj);
+        const char* txt = lv_btnmatrix_get_btn_text(obj, id);
+
+        printf("%s was pressed, id = %ld\n", txt, id);
+
+        if(id == 11) // "ENTER"
+        {
+            lv_obj_add_flag(btnm1, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        }
+        else if(id == 9) // DEL
+        {
+            size_t dest_len = strlen(password);
+            if(dest_len > 0)
+            {
+                password[dest_len - 1] = '\0';
+                lv_label_set_text(ui_LabelPanelPassword, password);
+            }
+        }
+        else
+        {
+            size_t dest_len = strlen(password);
+            size_t max_len = sizeof(password) - dest_len - 1;
+
+            strncat(password, txt, max_len);
+            lv_label_set_text(ui_LabelPanelPassword, password);
+        }
+    }
+}
+
+static void on_password_cb(lv_event_t* e)
+{
+    switch(e->code) {
+        case LV_EVENT_CLICKED:
+        {
+            lv_obj_clear_flag(btnm1, LV_OBJ_FLAG_HIDDEN);     /// Flags
+        }
+        break;
+   
+        default: 
+        break;
+    }
+}
+
+
+
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
+
+static void wifi_configuration_btn(lv_event_t * e)
+{
+    switch(e->code) {
+        case LV_EVENT_CLICKED:
+        {
+            event_t event = {
+                .src = TASK_UI,
+                .dest  = TASK_AIM,
+                .id   = EVT_UI_WIFI_SELECTED,
+            };
+            event_router_write(&event);
+        }
+        break;
+   
+        default: 
+        break;
+    }
+       /*Etc.*/
+}
+
+
+static void shared_folder_btn(lv_event_t * e)
+{
+    switch(e->code) {
+        case LV_EVENT_CLICKED:
+        {
+            event_t event = {
+                .src = TASK_UI,
+                .dest  = TASK_AIM,
+                .id   = EVT_UI_SHARED_FOLDER_SELECTED,
+            };
+            event_router_write(&event);  
+        }
+        break;
+
+        default: 
+        break;
+    }
+       /*Etc.*/
+}
+
+static void home_btn_cb(lv_event_t *e)
+{
+    switch (e->code)
+    {
+    case LV_EVENT_CLICKED:
+    {
+
+        event_t event = {
+            .src = TASK_UI,
+            .dest = TASK_AIM,
+            .id = EVT_UI_HOME_SELECTED,
+        };
+        event_router_write(&event);
+    }
+    break;
+
+    default:
+        break;
+    }
+}
+
+static void ls_share_folder_cb(lv_event_t *e)
+{
+    switch (e->code)
+    {
+    case LV_EVENT_CLICKED:
+    {
+
+        event_t event = {
+            .src = TASK_UI,
+            .dest = TASK_AIM,
+            .id = EVT_UI_LS_BTN_CLICKED,
+        };
+        event_router_write(&event);
+    }
+    break;
+
+    default:
+        break;
+    }
+}
+
+
+static void scan_network_btn_cb(lv_event_t *e)
+{
+    switch (e->code)
+    {
+    case LV_EVENT_CLICKED:
+    {
+        event_t event = {
+            .src = TASK_UI,
+            .dest  = TASK_AIM,
+            .id   = EVT_UI_SCAN_BTN_CLICKED,
+        };
+        event_router_write(&event);
+    }
+    break;
+
+    default:
+        break;
+    }
+}
+
+
+static void connect_network_btn_cb(lv_event_t *e)
+{
+    switch (e->code)
+    {
+    case LV_EVENT_CLICKED:
+    {
+        event_t event = {
+            .src = TASK_UI,
+            .dest  = TASK_AIM,
+            .id   = EVT_UI_CONNECT_BTN_CLICKED,
+        };
+        event_router_write(&event);
+    }
+    break;
+
+    default:
+        break;
+    }
+}
+
+
 ///////////////////// SCREENS ////////////////////
 void ui_WiFiScreen_screen_init(void)
 {
@@ -57,6 +274,8 @@ void ui_WiFiScreen_screen_init(void)
     lv_obj_set_align(ui_ButtonScan, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ButtonScan, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonScan, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_ButtonScan, scan_network_btn_cb, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
 
     ui_LabelBtnScan = lv_label_create(ui_ButtonScan);
     lv_obj_set_width(ui_LabelBtnScan, LV_SIZE_CONTENT);   /// 1
@@ -80,7 +299,7 @@ void ui_WiFiScreen_screen_init(void)
     ui_LabelPanelStatus = lv_label_create(ui_PanelStatus);
     lv_obj_set_width(ui_LabelPanelStatus, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelPanelStatus, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_LabelPanelStatus, -193);
+    lv_obj_set_x(ui_LabelPanelStatus, 0);
     lv_obj_set_y(ui_LabelPanelStatus, 1);
     lv_obj_set_align(ui_LabelPanelStatus, LV_ALIGN_CENTER);
     lv_label_set_text(ui_LabelPanelStatus, "STATUS : ");
@@ -110,6 +329,8 @@ void ui_WiFiScreen_screen_init(void)
     lv_obj_set_align(ui_ButtonConnect, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ButtonConnect, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_ButtonConnect, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_ButtonConnect, connect_network_btn_cb, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
 
     ui_LabelBtnConnect = lv_label_create(ui_ButtonConnect);
     lv_obj_set_width(ui_LabelBtnConnect, LV_SIZE_CONTENT);   /// 1
@@ -131,6 +352,20 @@ void ui_WiFiScreen_screen_init(void)
     lv_label_set_text(ui_LabelAvailableNet, "Available Networks");
     lv_obj_set_style_text_font(ui_LabelAvailableNet, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+
+    btnm1 = lv_btnmatrix_create(ui_WiFiScreen);
+    lv_btnmatrix_set_map(btnm1, btnm_map);
+    lv_obj_set_width(btnm1, 225);
+    lv_obj_set_height(btnm1, 225);
+    lv_obj_set_x(btnm1, -118);
+    lv_obj_set_y(btnm1, 0);
+    lv_btnmatrix_set_btn_ctrl(btnm1, 9, LV_BTNMATRIX_CTRL_CHECKABLE);
+    lv_btnmatrix_set_btn_ctrl(btnm1, 11, LV_BTNMATRIX_CTRL_CHECKED);
+    lv_obj_set_align(btnm1, LV_ALIGN_CENTER);
+    lv_obj_add_event_cb(btnm1, btn_matrix_cb, LV_EVENT_ALL, NULL);
+    lv_obj_add_flag(btnm1, LV_OBJ_FLAG_HIDDEN);     /// Flags
+
+
     ui_LabelTitle = lv_label_create(ui_WiFiScreen);
     lv_obj_set_width(ui_LabelTitle, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_LabelTitle, LV_SIZE_CONTENT);    /// 1
@@ -148,6 +383,8 @@ void ui_WiFiScreen_screen_init(void)
     lv_obj_set_align(ui_PanelPassword, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_PanelPassword, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_text_font(ui_PanelPassword, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(ui_PanelPassword, on_password_cb, LV_EVENT_ALL, NULL);
+
 
     ui_LabelPanelPassword = lv_label_create(ui_PanelPassword);
     lv_obj_set_width(ui_LabelPanelPassword, LV_SIZE_CONTENT);   /// 1
@@ -248,6 +485,8 @@ void ui_WiFiScreen_screen_init(void)
     lv_obj_set_align(ui_BtnHome, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_BtnHome, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_BtnHome, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_BtnHome, home_btn_cb, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
 
     ui_ImageBtnHome = lv_img_create(ui_BtnHome);
     lv_img_set_src(ui_ImageBtnHome, &ui_img_home3_png);
@@ -260,11 +499,318 @@ void ui_WiFiScreen_screen_init(void)
     lv_obj_clear_flag(ui_ImageBtnHome, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
 }
+void ui_MainMenu_screen_init(void)
+{
+    ui_MainMenu = lv_obj_create(NULL);
+    lv_obj_clear_flag(ui_MainMenu, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_LabelTitle1 = lv_label_create(ui_MainMenu);
+    lv_obj_set_width(ui_LabelTitle1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelTitle1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelTitle1, -6);
+    lv_obj_set_y(ui_LabelTitle1, -135);
+    lv_obj_set_align(ui_LabelTitle1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelTitle1, "Main Menu");
+    lv_obj_set_style_text_font(ui_LabelTitle1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ButtonNetMenu = lv_btn_create(ui_MainMenu);
+    lv_obj_set_width(ui_ButtonNetMenu, 222);
+    lv_obj_set_height(ui_ButtonNetMenu, 50);
+    lv_obj_set_x(ui_ButtonNetMenu, 0);
+    lv_obj_set_y(ui_ButtonNetMenu, -51);
+    lv_obj_set_align(ui_ButtonNetMenu, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ButtonNetMenu, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_ButtonNetMenu, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    lv_obj_add_event_cb(ui_ButtonNetMenu, wifi_configuration_btn, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
+
+    ui_LabelBtnScan1 = lv_label_create(ui_ButtonNetMenu);
+    lv_obj_set_width(ui_LabelBtnScan1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelBtnScan1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelBtnScan1, -5);
+    lv_obj_set_y(ui_LabelBtnScan1, 0);
+    lv_obj_set_align(ui_LabelBtnScan1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelBtnScan1, "WiFi Configuration");
+    lv_obj_set_style_text_color(ui_LabelBtnScan1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_LabelBtnScan1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelBtnScan1, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ButtonSharedFolderMenu = lv_btn_create(ui_MainMenu);
+    lv_obj_set_width(ui_ButtonSharedFolderMenu, 222);
+    lv_obj_set_height(ui_ButtonSharedFolderMenu, 50);
+    lv_obj_set_x(ui_ButtonSharedFolderMenu, 0);
+    lv_obj_set_y(ui_ButtonSharedFolderMenu, 25);
+    lv_obj_set_align(ui_ButtonSharedFolderMenu, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ButtonSharedFolderMenu, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_ButtonSharedFolderMenu, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_ButtonSharedFolderMenu, shared_folder_btn, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
+
+    ui_LabelBtnScan2 = lv_label_create(ui_ButtonSharedFolderMenu);
+    lv_obj_set_width(ui_LabelBtnScan2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelBtnScan2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelBtnScan2, -5);
+    lv_obj_set_y(ui_LabelBtnScan2, 0);
+    lv_obj_set_align(ui_LabelBtnScan2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelBtnScan2, "Shared Folder");
+    lv_obj_set_style_text_color(ui_LabelBtnScan2, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_LabelBtnScan2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_LabelBtnScan2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_PanelStatus1 = lv_obj_create(ui_MainMenu);
+    lv_obj_set_width(ui_PanelStatus1, 473);
+    lv_obj_set_height(ui_PanelStatus1, 37);
+    lv_obj_set_x(ui_PanelStatus1, 2);
+    lv_obj_set_y(ui_PanelStatus1, 137);
+    lv_obj_set_align(ui_PanelStatus1, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_PanelStatus1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_LabelPanelStatus1 = lv_label_create(ui_PanelStatus1);
+    lv_obj_set_width(ui_LabelPanelStatus1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelPanelStatus1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelPanelStatus1, 0);
+    lv_obj_set_y(ui_LabelPanelStatus1, 1);
+    lv_obj_set_align(ui_LabelPanelStatus1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelPanelStatus1, "STATUS : ");
+    lv_obj_set_style_text_font(ui_LabelPanelStatus1, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+}
+void ui_SharedFolderMenu_screen_init(void)
+{
+    ui_SharedFolderMenu = lv_obj_create(NULL);
+    lv_obj_clear_flag(ui_SharedFolderMenu, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_ShareFolderLabelTitle = lv_label_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_ShareFolderLabelTitle, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_ShareFolderLabelTitle, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_ShareFolderLabelTitle, -6);
+    lv_obj_set_y(ui_ShareFolderLabelTitle, -135);
+    lv_obj_set_align(ui_ShareFolderLabelTitle, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_ShareFolderLabelTitle, "Shared Folder");
+    lv_obj_set_style_text_font(ui_ShareFolderLabelTitle, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_PanelStatus2 = lv_obj_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_PanelStatus2, 473);
+    lv_obj_set_height(ui_PanelStatus2, 37);
+    lv_obj_set_x(ui_PanelStatus2, 2);
+    lv_obj_set_y(ui_PanelStatus2, 137);
+    lv_obj_set_align(ui_PanelStatus2, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_PanelStatus2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_LabelPanelStatus2 = lv_label_create(ui_PanelStatus2);
+    lv_obj_set_width(ui_LabelPanelStatus2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelPanelStatus2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelPanelStatus2, 0);
+    lv_obj_set_y(ui_LabelPanelStatus2, 1);
+    lv_obj_set_align(ui_LabelPanelStatus2, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelPanelStatus2, "STATUS : ");
+    lv_obj_set_style_text_font(ui_LabelPanelStatus2, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ImageFolder = lv_img_create(ui_SharedFolderMenu);
+    lv_img_set_src(ui_ImageFolder, &ui_img_network_png);
+    lv_obj_set_width(ui_ImageFolder, LV_SIZE_CONTENT);   /// 60
+    lv_obj_set_height(ui_ImageFolder, LV_SIZE_CONTENT);    /// 60
+    lv_obj_set_x(ui_ImageFolder, 197);
+    lv_obj_set_y(ui_ImageFolder, -121);
+    lv_obj_set_align(ui_ImageFolder, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ImageFolder, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_ImageFolder, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_PanelSharedFolder = lv_obj_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_PanelSharedFolder, 352);
+    lv_obj_set_height(ui_PanelSharedFolder, 163);
+    lv_obj_set_x(ui_PanelSharedFolder, 53);
+    lv_obj_set_y(ui_PanelSharedFolder, -4);
+    lv_obj_set_align(ui_PanelSharedFolder, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(ui_PanelSharedFolder, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_LabelSharedFolder = lv_label_create(ui_PanelSharedFolder);
+    lv_obj_set_width(ui_LabelSharedFolder, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelSharedFolder, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_LabelSharedFolder, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelSharedFolder, "");
+
+    ui_LabelNetwork = lv_label_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_LabelNetwork, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelNetwork, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelNetwork, -194);
+    lv_obj_set_y(ui_LabelNetwork, 101);
+    lv_obj_set_align(ui_LabelNetwork, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelNetwork, "Network:");
+    lv_obj_set_style_text_font(ui_LabelNetwork, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_ButtonSharedFolderLs = lv_btn_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_ButtonSharedFolderLs, 100);
+    lv_obj_set_height(ui_ButtonSharedFolderLs, 34);
+    lv_obj_set_x(ui_ButtonSharedFolderLs, -183);
+    lv_obj_set_y(ui_ButtonSharedFolderLs, -65);
+    lv_obj_set_align(ui_ButtonSharedFolderLs, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ButtonSharedFolderLs, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_ButtonSharedFolderLs, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_ButtonSharedFolderLs, ls_share_folder_cb, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
+
+    ui_SharedFolderBtnLabel1 = lv_label_create(ui_ButtonSharedFolderLs);
+    lv_obj_set_width(ui_SharedFolderBtnLabel1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_SharedFolderBtnLabel1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_SharedFolderBtnLabel1, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_SharedFolderBtnLabel1, "LIST CONTENT");
+    lv_obj_set_style_text_color(ui_SharedFolderBtnLabel1, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_SharedFolderBtnLabel1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_LabelNetworkInfo = lv_label_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_LabelNetworkInfo, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_LabelNetworkInfo, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_LabelNetworkInfo, 44);
+    lv_obj_set_y(ui_LabelNetworkInfo, 101);
+    lv_obj_set_align(ui_LabelNetworkInfo, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_LabelNetworkInfo, "smb://User49@192.168.11.2/ShareNetwork");
+
+    ui_BtnHome1 = lv_btn_create(ui_SharedFolderMenu);
+    lv_obj_set_width(ui_BtnHome1, 50);
+    lv_obj_set_height(ui_BtnHome1, 35);
+    lv_obj_set_x(ui_BtnHome1, -208);
+    lv_obj_set_y(ui_BtnHome1, -138);
+    lv_obj_set_align(ui_BtnHome1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_BtnHome1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_BtnHome1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_add_event_cb(ui_BtnHome1, home_btn_cb, LV_EVENT_ALL, NULL );   /*Assign an event callback*/
+
+
+    ui_ImageBtnHome1 = lv_img_create(ui_BtnHome1);
+    lv_img_set_src(ui_ImageBtnHome1, &ui_img_home3_png);
+    lv_obj_set_width(ui_ImageBtnHome1, LV_SIZE_CONTENT);   /// 25
+    lv_obj_set_height(ui_ImageBtnHome1, LV_SIZE_CONTENT);    /// 25
+    lv_obj_set_x(ui_ImageBtnHome1, -1);
+    lv_obj_set_y(ui_ImageBtnHome1, -1);
+    lv_obj_set_align(ui_ImageBtnHome1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_ImageBtnHome1, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
+    lv_obj_clear_flag(ui_ImageBtnHome1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+}
+
 
 void ui_show_wifi_screen(void)
 {
     lv_disp_load_scr(ui_WiFiScreen);
+    ui_set_status_msg("On WiFi Configuration");
 }
+
+void ui_show_main_screen(void)
+{
+    lv_disp_load_scr(ui_MainMenu);
+    ui_set_status_msg("Select an Option");
+}
+
+void ui_show_folder_screen(void)
+{
+    lv_disp_load_scr(ui_SharedFolderMenu);
+    ui_set_status_msg("On Shared Folder");
+
+}
+
+void ui_set_status_msg(char *msg)
+{
+    char buff[100];
+    snprintf(buff, 100, "STATUS : %s", msg);
+
+    // main menu
+    lv_label_set_text(ui_LabelPanelStatus1, buff);
+
+    // shared folder 
+    lv_label_set_text(ui_LabelPanelStatus2, buff);
+
+    // wifi config
+    lv_label_set_text(ui_LabelPanelStatus, buff);
+}
+
+void ui_show_scanning_panel(void)
+{
+    lv_obj_add_flag(ui_RollerNetList, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_PanelSearchNet, LV_OBJ_FLAG_HIDDEN);
+}
+
+void ui_show_connecting_panel_in_progress(void)
+{
+    lv_obj_clear_flag(ui_PanelConnecting, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_SpinnerConnecting, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_add_flag(ui_PanelPassword, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_add_flag(ui_ImgPanelConnecting, LV_OBJ_FLAG_HIDDEN);     
+    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_HIDDEN);     
+    lv_label_set_text(ui_LabelPanelConnecting, "Connecting..");
+
+}
+
+void ui_show_connecting_panel_succeed(void)
+{
+    lv_obj_clear_flag(ui_PanelConnecting, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_Image2, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_add_flag(ui_ImgPanelConnecting, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_SpinnerConnecting, LV_OBJ_FLAG_HIDDEN);    
+    lv_obj_add_flag(ui_PanelPassword, LV_OBJ_FLAG_HIDDEN);   
+    lv_label_set_text(ui_LabelPanelConnecting, "OK");
+  
+}
+
+void ui_show_connecting_panel_fail(void)
+{
+    lv_obj_clear_flag(ui_PanelConnecting, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_ImgPanelConnecting, LV_OBJ_FLAG_HIDDEN);
+
+    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(ui_SpinnerConnecting, LV_OBJ_FLAG_HIDDEN);    
+    lv_obj_add_flag(ui_PanelPassword, LV_OBJ_FLAG_HIDDEN); 
+    lv_label_set_text(ui_LabelPanelConnecting, "FAIL");
+}
+
+
+void ui_show_password_panel(void)
+{
+    lv_obj_add_flag(ui_SpinnerConnecting, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_add_flag(ui_PanelConnecting, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_clear_flag(ui_PanelPassword, LV_OBJ_FLAG_HIDDEN);
+    lv_label_set_text(ui_LabelPanelConnecting, "");
+
+}
+
+void ui_show_networks_panel(void)
+{
+    lv_obj_add_flag(ui_PanelSearchNet, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(ui_RollerNetList, LV_OBJ_FLAG_HIDDEN);     /// Flags
+}
+
+
+// send string of type "Option 1\nOption 2\nOption 2"
+void ui_set_scanned_networks(char *net_list)
+{
+    lv_roller_set_options(ui_RollerNetList, net_list, LV_ROLLER_MODE_NORMAL);
+}
+
+void ui_share_folder_set_content(char *folder_str)
+{
+    lv_label_set_text(ui_LabelSharedFolder, folder_str);
+}
+
+void ui_share_folder_set_sbm_name(char *smb_url)
+{
+    lv_label_set_text(ui_LabelNetworkInfo, smb_url);
+}
+
+char *ui_get_network_ssid(void)
+{
+    memset(ssid, 0, sizeof(ssid));
+    lv_roller_get_selected_str(ui_RollerNetList, ssid, sizeof(ssid));
+    return ssid;
+}
+
+char *ui_get_network_password(void)
+{
+    return lv_label_get_text(ui_LabelPanelPassword);
+}
+
 
 
 void ui_wifi_screen_init(void)
@@ -274,5 +820,7 @@ void ui_wifi_screen_init(void)
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_WiFiScreen_screen_init();
+    ui_MainMenu_screen_init();
+    ui_SharedFolderMenu_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
 }

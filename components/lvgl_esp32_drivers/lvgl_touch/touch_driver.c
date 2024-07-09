@@ -24,24 +24,24 @@ void touch_driver_init(void)
 #endif
 }
 
-bool touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
+void touch_driver_read(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
-    bool res = false;
+    // bool res = false;
 
 #if defined (CONFIG_LVGL_TOUCH_CONTROLLER_XPT2046)
-    res = xpt2046_read(drv, data);
+    xpt2046_read(drv, data);
 #elif defined (CONFIG_LVGL_TOUCH_CONTROLLER_FT6X06)
-    res = ft6x36_read(drv, data);
+    ft6x36_read(drv, data);
 #elif defined (CONFIG_LVGL_TOUCH_CONTROLLER_STMPE610)
-    res = stmpe610_read(drv, data);
+    stmpe610_read(drv, data);
 #elif defined (CONFIG_LVGL_TOUCH_CONTROLLER_ADCRAW)
-    res = adcraw_read(drv, data);
+    adcraw_read(drv, data);
 #elif defined (CONFIG_LVGL_TOUCH_CONTROLLER_FT81X)
-    res = FT81x_read(drv, data);
+    FT81x_read(drv, data);
 #elif defined (CONFIG_LVGL_TOUCH_CONTROLLER_RA8875)
-    res = ra8875_touch_read(drv, data);
+    ra8875_touch_read(drv, data);
 #endif
 
-    return res;
+    // return res;
 }
 

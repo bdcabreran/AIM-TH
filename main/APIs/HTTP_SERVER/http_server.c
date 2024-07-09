@@ -400,7 +400,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
 		if (esp_ota_set_boot_partition(update_partition) == ESP_OK)
 		{
 			const esp_partition_t *boot_partition = esp_ota_get_boot_partition();
-			HTTP_DEBUG("http_server_OTA_update_handler: Next boot partition subtype %d at offset 0x%x", boot_partition->subtype, boot_partition->address);
+			HTTP_DEBUG("http_server_OTA_update_handler: Next boot partition subtype %d at offset 0x%lx", boot_partition->subtype, boot_partition->address);
 			flash_successful = true;
 		}
 		else

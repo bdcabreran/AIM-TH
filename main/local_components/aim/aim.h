@@ -9,6 +9,7 @@ typedef enum
     STATE_INVALID = 0, 
     STATE_WIFI_CONFIG, 
     STATE_MAIN_SCREEN, 
+    STATE_SHARED_FOLDER, 
     STATE_LAST
 }aim_device_state_t;
 

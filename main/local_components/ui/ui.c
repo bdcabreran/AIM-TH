@@ -42,7 +42,7 @@
  */
 
 
-#define LV_TICK_PERIOD_MS    (10)
+#define LV_TICK_PERIOD_MS    (5)
 #define USE_TOUCH_PANEL      (1) 
 #define USE_DOUBLE_DRAW_BUFF (1)
 #define UI_QUEUE_ITEMS       (5)
@@ -102,13 +102,11 @@ static esp_err_t ui_process_event(event_t *event)
 {
     switch (event->id)
     {
-        case EVT_UI_SHOW_WIFI_SCREEN: ui_show_wifi_screen(); break;
-        case EVT_UI_SHOW_MAIN_SCREEN: break;
-        case EVT_UI_FILL_NETWORKS   : break;    
-        case EVT_UI_SHOW_CONNECTING : break;  
-        case EVT_UI_SHOW_SCANNING   : break;    
-        case EVT_UI_SHOW_CONN_OK    : break;     
-        case EVT_UI_SHOW_CONN_FAIL  : break;   
+        case EVT_UI_SHOW_WIFI_SCREEN  : ui_show_wifi_screen();     break;
+        case EVT_UI_SHOW_MAIN_SCREEN  : ui_show_main_screen();     break;
+        case EVT_UI_SHOW_FOLDER_SCREEN: ui_show_folder_screen();   break;
+        case EVT_UI_FILL_NETWORKS     : ui_set_scanned_networks((char*)event->payload.net_list_msg); break;    
+        case EVT_UI_SET_STATUS_MSG    : ui_set_status_msg((char*)event->payload.status_msg); break;  
 
     default:
         break;
@@ -117,6 +115,7 @@ static esp_err_t ui_process_event(event_t *event)
     memset(event, 0, sizeof(event_t));
     return ESP_OK;
 }
+
 
 void ui_task(void *args) {
 
@@ -164,7 +163,6 @@ xGuiSemaphore = xSemaphoreCreateMutex();
     esp_timer_handle_t periodic_timer;
     ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
     ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
-    
     
     ui_wifi_screen_init();
 

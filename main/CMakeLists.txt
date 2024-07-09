@@ -41,20 +41,20 @@ set(dirs
 #         "lvgl"
 # )
 
-# set(files
-#         "../doc/web/style.css"
-#         "../doc/web/app.js"
-#         "../doc/web/favicon.ico"
-#         "../doc/web/index.html"
-#         "../doc/web/upload_script.html"
-#         "../doc/web/jquery-3.3.1.min.js"
-# )
+set(files
+        "../doc/web/style.css"
+        "../doc/web/app.js"
+        "../doc/web/favicon.ico"
+        "../doc/web/index.html"
+        "../doc/web/upload_script.html"
+        "../doc/web/jquery-3.3.1.min.js"
+)
 
 idf_component_register(
         SRCS ${srcs}
         INCLUDE_DIRS ${dirs}
         # REQUIRES ${components} 
-        # EMBED_FILES ${files}
+        EMBED_FILES ${files}
         )
 
 # idf_component_register(SRCS "main.c"

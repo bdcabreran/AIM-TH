@@ -35,18 +35,61 @@ extern lv_obj_t * ui_ImgPanelConnecting;
 extern lv_obj_t * ui_Image2;
 extern lv_obj_t * ui_BtnHome;
 extern lv_obj_t * ui_ImageBtnHome;
+extern lv_obj_t * ui_MainMenu;
+extern lv_obj_t * ui_LabelTitle1;
+extern lv_obj_t * ui_ButtonNetMenu;
+extern lv_obj_t * ui_LabelBtnScan1;
+extern lv_obj_t * ui_ButtonSharedFolderMenu;
+extern lv_obj_t * ui_LabelBtnScan2;
+extern lv_obj_t * ui_PanelStatus1;
+extern lv_obj_t * ui_LabelPanelStatus1;
+extern lv_obj_t * ui_SharedFolderMenu;
+extern lv_obj_t * ui_ShareFolderLabelTitle;
+extern lv_obj_t * ui_PanelStatus2;
+extern lv_obj_t * ui_LabelPanelStatus2;
+extern lv_obj_t * ui_ImageFolder;
+extern lv_obj_t * ui_PanelSharedFolder;
+extern lv_obj_t * ui_LabelSharedFolder;
+extern lv_obj_t * ui_LabelNetwork;
+extern lv_obj_t * ui_ButtonSharedFolderLs;
+extern lv_obj_t * ui_SharedFolderBtnLabel1;
+extern lv_obj_t * ui_LabelNetworkInfo;
+extern lv_obj_t * ui_BtnHome1;
+extern lv_obj_t * ui_ImageBtnHome1;
 extern lv_obj_t * ui____initial_actions0;
-
 
 
 LV_IMG_DECLARE(ui_img_search_wifi_png);    // assets\search_wifi.png
 LV_IMG_DECLARE(ui_img_1656806725);    // assets\no-wifi.png
 LV_IMG_DECLARE(ui_img_wifi_1_png);    // assets\wifi_1.png
 LV_IMG_DECLARE(ui_img_home3_png);    // assets\home3.png
+LV_IMG_DECLARE(ui_img_network_png);    // assets\network.png
+LV_IMG_DECLARE(ui_img_home2_png);    // assets\home2.png
 
 
 void ui_wifi_screen_init(void);
 void ui_show_wifi_screen(void);
+void ui_show_folder_screen(void);
+void ui_show_main_screen(void);
+void ui_set_status_msg(char *msg);
+void ui_set_scanned_networks(char *net_list);
+
+void ui_show_scanning_panel(void);
+void ui_show_networks_panel(void);
+
+void ui_show_connecting_panel_in_progress(void);
+void ui_show_connecting_panel_succeed(void);
+void ui_show_connecting_panel_fail(void);
+
+void ui_show_password_panel(void);
+
+void ui_share_folder_set_content(char *folder_str);
+void ui_share_folder_set_sbm_name(char *smb_uri);
+void lv_example_btnmatrix_custom(void);
+
+char *ui_get_network_password(void);
+char *ui_get_network_ssid(void);
+
 
 
 #ifdef __cplusplus

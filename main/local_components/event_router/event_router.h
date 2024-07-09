@@ -36,20 +36,29 @@
 #define UI_EVENTS              \
     EVT_UI_SHOW_WIFI_SCREEN, \
     EVT_UI_SHOW_MAIN_SCREEN, \
-    EVT_UI_FILL_NETWORKS,    \
-    EVT_UI_SHOW_CONNECTING,  \
-    EVT_UI_SHOW_SCANNING,    \
-    EVT_UI_SHOW_CONN_OK,     \
-    EVT_UI_SHOW_CONN_FAIL    
+    EVT_UI_SHOW_FOLDER_SCREEN, \
+    EVT_UI_WIFI_SELECTED, \
+    EVT_UI_SHARED_FOLDER_SELECTED, \
+    EVT_UI_HOME_SELECTED, \
+    EVT_UI_LS_BTN_CLICKED, \
+    EVT_UI_SCAN_BTN_CLICKED, \
+    EVT_UI_CONNECT_BTN_CLICKED, \
+    EVT_UI_SET_STATUS_MSG, \
+    EVT_UI_FILL_NETWORKS
+  
 
 #define UI_EVENTS_NAME \
     "EVT_UI_SHOW_WIFI_SCREEN", \
     "EVT_UI_SHOW_MAIN_SCREEN", \
-    "EVT_UI_FILL_NETWORKS",    \
-    "EVT_UI_SHOW_CONNECTING",  \
-    "EVT_UI_SHOW_SCANNING",    \
-    "EVT_UI_SHOW_CONN_OK",     \
-    "EVT_UI_SHOW_CONN_FAIL"    
+    "EVT_UI_SHOW_FOLDER_SCREEN", \
+    "EVT_UI_WIFI_SELECTED", \
+    "EVT_UI_SHARED_FOLDER_SELECTED", \
+    "EVT_UI_HOME_SELECTED", \
+    "EVT_UI_LS_BTN_CLICKED", \
+    "EVT_UI_SCAN_BTN_CLICKED", \
+    "EVT_UI_CONNECT_BTN_CLICKED", \
+    "EVT_UI_SET_STATUS_MSG", \
+    "EVT_UI_FILL_NETWORKS"    
 
 // Define macro for COIN events
 #define WIFI_EVENTS \
@@ -107,6 +116,8 @@ typedef struct
     union
     {
         coin_payload_t coin;
+        uint32_t net_list_msg[EVENT_MAX_PAYLOAD_LEN];
+        uint32_t status_msg[EVENT_MAX_PAYLOAD_LEN];
         uint32_t buffer[EVENT_MAX_PAYLOAD_LEN];
     };
 }event_payload_t;
