@@ -1,54 +1,196 @@
-# Websocket application
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
-This example will shows how to set up and communicate over a websocket.
+# ESP32 WiFi Control UI with Touch Panel and 480x320 LCD using LVGL (ESP-IDF v5.4.0)
 
-## How to Use Example
+## Overview    
 
-### Hardware Required
+This project is a WiFi Control Application designed for ESP32, featuring touch panel support and a ILI9488 480x320 LCD display. It is built using the ESP-IDF v5.4.0 framework and integrates LVGL (Light and Versatile Graphics Library) for GUI rendering. The project setup includes a Docker container with Visual Studio Code and necessary extensions for seamless development.
 
-This example can be executed on any ESP32 board, the only required interface is WiFi and connection to internet or a local server.
+## Example Video and Images
 
-### Configure the project
+Watch Video : 
 
-* Open the project configuration menu (`idf.py menuconfig`)
-* Enable Component Config / HTTP Server / WebSocket Server support
+[![Watch another video](https://img.youtube.com/vi/_q5Y7elK1Dg/0.jpg)](https://www.youtube.com/watch?v=_q5Y7elK1Dg&ab_channel=BayronCabrera)
 
-### Build and Flash
 
-Build the project and flash it to the board, then run monitor tool to view serial output:
+Reference Image: 
+
+   <img src="documentation/images/wifi_control_ui.png" width="500">
+
+## Features
+
+- **WiFi Control Application**: Scan WiFi access points, show connection status and allows Password and connection Setting.
+- **Touch Panel Support**: Interact with the application through a touch screen.
+- **ILI 9488 480x320 LCD Display**: High-resolution display for clear and detailed visuals.
+- **ESP-IDF Integration**: Built using ESP-IDF v5.4.0 for robust and efficient performance.
+- **LVGL Integration**: Utilizes LVGL 8.3 for advanced graphics rendering.
+- **Dockerized Development Environment**: Includes a Docker container with pre-installed VSCode extensions for ESP-IDF development.
+
+## Project Structure
 
 ```
-idf.py -p PORT flash monitor
+.
+├── build
+├── components
+│   ├── lvgl
+│   └── lvgl_esp32_drivers
+├── dependencies.lock
+├── doc
+│   ├── img
+│   └── web
+├── main
+│   ├── APIs
+│   ├── CMakeLists.txt
+│   ├── component.mk
+│   ├── Kconfig.projbuild
+│   ├── local_components
+│   └── main.c
+├── Makefile
+├── partitions.csv
+├── README.md
+└── sdkconfig
 ```
 
-(To exit the serial monitor, type ``Ctrl-]``.)
+## HW Configuration : 
+Here is a detailed hardware connection table for connecting the ESP32 to the ILI9488 display:
 
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
+### Hardware Connections
 
-## Example Output
-
-### Extensions used
-
-For this example we used the "WebSocket Test Client" extension available at https://chrome.google.com/webstore/detail/websocket-test-client/fgponpodhbmadfljofbimhhlengambbn?hl=en
-
-![extension](\doc\img\websocket_ext.PNG)
-
-### How use
-
-Through an STA enters the server's AP.
-
-![ssid](\doc\img\ssid.PNG)
-
-* **URL:** Enter the IP of the http server with the URI **/ws** and press **Open**.
-
-![extension](\doc\img\ip_gateway.PNG) ![extension](\doc\img\ws_uri.PNG)
-
-
-* **REQUEST:** Enter a message to the server.
-* **MESSAGE LOG:** Here you will receive the server's response.
-
-![extension](\doc\img\websocket_client.PNG)
+| **ESP32 GPIO Pin** | **ILI9488 Pin**     | **Function**           |
+|--------------------|---------------------|------------------------|
+| 5.0V               | VCC                 | Power Supply           |
+| GND                | GND                 | Ground                 |
+| GPIO15             | CS                  | Chip Select            |
+| GPIO4              | RESET               | Reset                  |
+| GPIO2              | DC/RS               | Data/Command Select    |
+| GPIO13             | SDI (MOSI), T_DIN   | Serial Data In (MOSI)  |
+| GPIO14             | SCK                 | Serial Clock           |
+| 3.3V               | LED                 | Backlight Control      |
+| GPIO5              | T_CS                | Touch Chip Select      |
+| GPIO19             | T_DO                | Touch Data Out (MISO)  |
+| GPIO23             | T_DI                | Touch Data In (MOSI)   |
+| GPIO25             | T_IRQ               | Touch Interrupt        |
+| GPIO18             | T_CLK               | Serial Clock           |
 
 
+### Notes
+- Ensure that all connections are secure and that there are no loose wires.
+- Double-check the pin numbers on both the ESP32 and the ILI9488 to ensure correct wiring.
+- If using a breadboard, make sure it is properly powered and that all connections are made through the correct rails.
 
+By following these connections, you should be able to interface the ESP32 with the ILI9488 display successfully, enabling the display and touch functionalities for your project.
+
+## Prerequisites
+
+- **Docker**: Ensure Docker is installed and running on your system.
+- **Visual Studio Code**: Recommended for development and debugging.
+
+## Setup Instructions
+
+1. **Clone the Repository**:
+   ```sh
+   git clone git@github.com:bdcabreran/ESP32-IDF-LVGL-WiFi-Control.git
+   cd <repository-directory>
+   ```
+
+2. **Open Project Folder on vscode**:
+   ```sh
+   cd <repository-directory>
+   code .
+   ```
+- Once this repository is on your local PC, open it using Visual Studio Code and press `Ctrl+P`. Select the option `Dev Containers: Open in container`.
+
+- This will start creating the Linux Docker image. Once it is completed, you can then press `Ctrl+P` and select `Create New Terminal`. You will now be inside the Docker container, and the environment is ready to start working.
+
+3. **Example of Container**: 
+
+   Once inside the container, you should be able to see the ESP-IDF extension along with a `Dev Container: ESP-IDF Development Environment` tag in the bottom left corner.
+    ![alt text](documentation/images/DockerContainer.png)
+
+## Configurations
+
+### Supported LCDs
+
+Below a Table of supported LCDs: 
+
+Here's a table listing the supported LCDs and touch panels based on the provided directory structure:
+
+### Supported LCDs and Touch Panels
+
+| **Category** | **Name**       | **File**                   |
+|--------------|----------------|----------------------------|
+| **LCDs**     | ILI9341        | `lvgl_tft/ili9341.c`       |
+|              | ILI9481        | `lvgl_tft/ili9481.c`       |
+|              | ILI9486        | `lvgl_tft/ili9486.c`       |
+|              | ILI9488        | `lvgl_tft/ili9488.c`       |
+|              | HX8357         | `lvgl_tft/hx8357.c`        |
+|              | ST7735S        | `lvgl_tft/st7735s.c`       |
+|              | ST7789         | `lvgl_tft/st7789.c`        |
+|              | GC9A01         | `lvgl_tft/GC9A01.c`        |
+|              | SSD1306        | `lvgl_tft/ssd1306.c`       |
+|              | SH1107         | `lvgl_tft/sh1107.c`        |
+|              | RA8875         | `lvgl_tft/ra8875.c`        |
+|              | IL3820         | `lvgl_tft/il3820.c`        |
+|              | FT81x          | `lvgl_tft/FT81x.c`         |
+|              | EVE            | `lvgl_tft/EVE_commands.c`  |
+| **Touch Panels** | XPT2046        | `lvgl_touch/xpt2046.c`      |
+|              | FT6X36         | `lvgl_touch/ft6x36.c`      |
+|              | STMPE610       | `lvgl_touch/stmpe610.c`    |
+|              | RA8875 Touch   | `lvgl_touch/ra8875_touch.c`|
+|              | ADC Raw        | `lvgl_touch/adcraw.c`      |
+|              | FT81x Touch    | `lvgl_touch/FT81x.c`       |
+
+### Description
+
+- **LCDs**: These are the supported display controllers. Each entry in the table corresponds to an LCD driver implemented in the specified source file.
+- **Touch Panels**: These are the supported touch controllers. Each entry in the table corresponds to a touch panel driver implemented in the specified source file.
+
+### LCD & Touch Configuration via `menuconfig`
+
+To configure these LCDs and touch panels, use the `menuconfig` tool in ESP-IDF:
+1. Run `idf.py menuconfig`.
+2. Navigate to `Component config -> LVGL Touch controller`.
+3. Configure your specific touch panel under `Touchpanel Configuration`.
+4. Similarly, navigate to `Component config -> LVGL TFT Display controller` to configure your specific LCD.
+
+### LVGL Configuration via `menuconfig`
+To configure LVGL settings, use the `menuconfig` tool in ESP-IDF:
+
+1. Run `idf.py menuconfig`.
+2. Navigate to `Component config -> LVGL Configuration`.
+3. Configure your specific LVGL settings such as buffer sizes, color depth, and performance options.
+4. Alternatively the user can check the available options via `lvgl_config.h` file under `lvgl` component
+
+
+## Usage
+
+1. **Build the Project**:
+   ```sh
+   idf.py build
+   ```
+
+2. **Flash the Project**:
+   ```sh
+   idf.py flash
+   ```
+
+3. **Monitor the Output**:
+   ```sh
+   idf.py monitor
+   ```
+
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
+## Author
+
+**Bayron Cabrera**
+
+- **GitHub:** https://github.com/bdcabreran
+- **LinkedIn:** https://www.linkedin.com/in/bayron-cabrera-517821124/
+- **Email:** bayron.nanez@gmail.com
+
+For Further information check esp32_port example : 
+* https://github.com/lvgl/lv_port_esp32
+* https://github.com/Mair/learn-lvgl/tree/master/esp32
