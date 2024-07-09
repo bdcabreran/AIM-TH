@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "event_router.h"
+#include "esp_timer.h"
 
 static const char TAG[] = "[http_server]";
 
@@ -377,7 +378,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
 			}
 			else
 			{
-				printf("http_server_OTA_update_handler: Writing to partition subtype %d at offset 0x%x\r\n", update_partition->subtype, update_partition->address);
+				printf("http_server_OTA_update_handler: Writing to partition subtype %d at offset 0x%lx\r\n", update_partition->subtype, update_partition->address);
 			}
 
 			// Write this first part of the data
@@ -871,7 +872,7 @@ void ws_print(void *pvParameters)
 	
 	for(;;)
 	{
-		if(xQueueReceive(ws_queue, &(buffer), (portTickType)portMAX_DELAY))
+		if(xQueueReceive(ws_queue, &(buffer), portMAX_DELAY))
 		{
 			http_ws_server_send_messages(buffer);
 		}

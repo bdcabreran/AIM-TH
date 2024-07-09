@@ -18,6 +18,7 @@
 #include "lvgl_helpers.h"
 
 #include "ui_wifi_screen.h"
+#include "esp_timer.h"
 // #include "ui_main_screen.h"
 
 /**

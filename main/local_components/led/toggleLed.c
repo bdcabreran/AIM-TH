@@ -8,7 +8,7 @@
 
 void init_led(void)
 {
-    gpio_pad_select_gpio(LED);
+    gpio_reset_pin(LED);
     gpio_set_direction(LED, GPIO_MODE_OUTPUT);
 }
 

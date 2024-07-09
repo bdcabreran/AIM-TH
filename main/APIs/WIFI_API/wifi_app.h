@@ -9,6 +9,9 @@
 #define MAIN_WIFI_APP_H_
 
 #include "esp_netif.h"
+#include "freertos/FreeRTOS.h" // For BaseType_t
+#include "freertos/queue.h"
+#include "esp_wifi.h" // For wifi_config_t
 
 // WiFi application task
 #define WIFI_APP_TASK_STACK_SIZE			4096

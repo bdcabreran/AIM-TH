@@ -1,47 +1,43 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
-// https://github.com/microsoft/vscode-dev-containers/tree/v0.183.0/containers/ubuntu
 {
-	"name": "ESP-IDF QEMU",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	// Add the IDs of extensions you want installed when the container is created
-	"workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
-	/* the path of workspace folder to be opened after container is running
-	 */
-	"workspaceFolder": "${localWorkspaceFolder}",
-	"mounts": [
-		"source=extensionCache,target=/root/.vscode-server/extensions,type=volume"
-	],
-	"customizations": {
-		"vscode": {
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "bash",
-				"idf.espIdfPath": "/opt/esp/idf",
-				"idf.customExtraPaths": "",
-				"idf.pythonBinPath": "/opt/esp/python_env/idf5.1_py3.8_env/bin/python",
-				"idf.toolsPath": "/opt/esp",
-				"idf.gitPath": "/usr/bin/git"
-			},
-			"extensions": [
-				"ms-vscode.cpptools",
-				"espressif.esp-idf-extension"
-			],
-		},
-		"codespaces": {
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "bash",
-				"idf.espIdfPath": "/opt/esp/idf",
-				"idf.customExtraPaths": "",
-				"idf.pythonBinPath": "/opt/esp/python_env/idf5.1_py3.8_env/bin/python",
-				"idf.toolsPath": "/opt/esp",
-				"idf.gitPath": "/usr/bin/git"
-			},
-			"extensions": [
-				"ms-vscode.cpptools",
-				"espressif.esp-idf-extension"
-			],
-		}
-	},
-	"runArgs": ["--privileged"]
+  "name": "ESP-IDF Development Environment",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "args": {
+      "IDF_CLONE_BRANCH_OR_TAG": "master",
+      "IDF_CLONE_SHALLOW": "1",
+      "IDF_CLONE_SHALLOW_DEPTH": "1",
+      "IDF_INSTALL_TARGETS": "all"
+    }
+  },
+
+  // Customizations for VSCode settings and recommended extensions
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "idf.espIdfPath": "/opt/esp/idf",
+        "idf.customExtraPaths": "",
+        "idf.pythonBinPath": "/opt/esp/python_env/idf5.4_py3.12_env/bin/python",
+        "idf.toolsPath": "/opt/esp",
+        "idf.gitPath": "/usr/bin/git"
+      },
+
+      "extensions": [
+        "ms-vscode.cpptools",
+        "espressif.esp-idf-extension",
+        "mhutchie.git-graph", // Visualize your Git repositories in graph format
+        "CoenraadS.bracket-pair-colorizer-2", // Colorize matching brackets, enhances code readability
+        "aaron-bond.better-comments", // Create more human-friendly comments in your code
+        "mhutchie.git-graph", // Visualize your Git repositories in graph format
+        "ms-vscode.cmake-tools" // Adds support for CMake projects in VS Code
+
+      ]
+    }
+  },
+  "remoteUser": "root",
+  "postCreateCommand": ". /opt/esp/idf/export.sh",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "workspaceFolder": "/workspace",
+  "runArgs": ["--privileged"]
 }
