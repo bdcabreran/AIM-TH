@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 
 #include "freertos/FreeRTOS.h"
@@ -67,3 +68,4 @@ void app_main(void)
 
     ESP_LOGI(TAG, "Free memory: %d bytes", esp_get_free_heap_size());
 }
+
